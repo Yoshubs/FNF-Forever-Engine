@@ -3,6 +3,7 @@ package;
 import base.Controls;
 import base.ScriptHandler;
 import base.debug.Overlay;
+import dependency.Discord;
 import flixel.FlxG;
 import flixel.FlxGame;
 import flixel.FlxState;
@@ -26,6 +27,11 @@ class Main extends Sprite
 		Controls.init();
 		// initialize the forever scripthandler
 		ScriptHandler.initialize();
+		// initialize the discord rich presence
+		#if !html5
+		Discord.initializeRPC();
+		Discord.changePresence('WORK IN PROGRESS');
+		#end
 
 		var gameCreate:FlxGame;
 		gameCreate = new FlxGame(1280, 720, initialState, 1, defaultFramerate, defaultFramerate, true, false);
