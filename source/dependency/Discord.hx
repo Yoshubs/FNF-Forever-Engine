@@ -1,6 +1,6 @@
 package dependency;
 
-#if !html5
+#if Discord
 import discord_rpc.DiscordRpc;
 #end
 import lime.app.Application;
@@ -11,7 +11,7 @@ import lime.app.Application;
 **/
 class Discord
 {
-	#if !html5
+	#if Discord
 	// set up the rich presence initially
 	public static function initializeRPC()
 	{

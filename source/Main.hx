@@ -28,7 +28,7 @@ class Main extends Sprite
 		// initialize the forever scripthandler
 		ScriptHandler.initialize();
 		// initialize the discord rich presence
-		#if !html5
+		#if Discord
 		Discord.initializeRPC();
 		Discord.changePresence('WORK IN PROGRESS');
 		#end
