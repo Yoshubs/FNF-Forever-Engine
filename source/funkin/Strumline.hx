@@ -9,6 +9,7 @@ import flixel.group.FlxSpriteGroup;
 import haxe.Json;
 import haxe.ds.StringMap;
 import sys.io.File;
+import flixel.FlxG;
 
 class Strumline extends FlxSpriteGroup
 {
@@ -45,6 +46,8 @@ class Strumline extends FlxSpriteGroup
 		for (i in 0...keyAmount)
 		{
 			var receptor:Receptor = new Receptor(receptorData, i);
+			receptorData.separation = 160;
+			receptorData.size = 0.7;
 
 			// calculate width
 			receptor.setGraphicSize(Std.int(receptor.width * receptorData.size));
