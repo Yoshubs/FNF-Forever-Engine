@@ -89,7 +89,7 @@ class PlayState extends MusicBeatState
 		camHUD.bgColor.alpha = 0;
 		FlxG.cameras.add(camHUD);
 
-		song = ChartParser.loadChart(this, "milf", 1, FNF_LEGACY);
+		song = ChartParser.loadChart(this, "roses", 1, FNF_LEGACY);
 
 		Conductor.boundSong.play();
 		Conductor.boundVocals.play();
@@ -216,8 +216,6 @@ class PlayState extends MusicBeatState
 
 				strumline.allNotes.forEachAlive(function(strumNote:Note)
 				{
-					var receptor:Receptor = strumline.receptors.members[Math.floor(strumNote.noteData)];
-
 					if (Math.floor(strumNote.noteData) >= 0)
 					{
 						// update speed
@@ -226,6 +224,7 @@ class PlayState extends MusicBeatState
 						else
 							strumNote.noteSpeed = songSpeed;
 
+						var receptor:Receptor = strumline.receptors.members[Math.floor(strumNote.noteData)];
 						// update position
 						strumNote.x = receptor.x + strumNote.offsetX;
 						strumNote.y = receptor.y
@@ -279,12 +278,12 @@ class PlayState extends MusicBeatState
 									strumNote.clipRect = swagRect;
 							}
 						}
-					}
 
-					if (strumline.autoplay)
-					{
-						if (strumNote.stepTime * Conductor.stepCrochet <= Conductor.songPosition && !strumNote.wasGoodHit)
-							noteHit(strumNote, receptor, strumline);
+						if (strumline.autoplay)
+						{
+							if (strumNote.stepTime * Conductor.stepCrochet <= Conductor.songPosition)
+								noteHit(strumNote, receptor, strumline);
+						}
 					}
 
 					// if the note is off screen (above)
@@ -301,14 +300,24 @@ class PlayState extends MusicBeatState
 			{
 				// get notes held
 				var holdingKeys:Array<Bool> = [];
+				var holdingNotes:Array<Bool> = [];
 				for (receptor in strumline.receptors)
 				{
 					for (key in Controls.keyPressed)
 					{
 						if (receptor.action == Controls.getActionFromKey(key))
 							holdingKeys.push(true);
+						if (receptorActionList.contains(receptor.action))
+							holdingNotes[receptor.noteData] = Controls.isActionPressed(receptor.action);
 					}
 				}
+
+				// hit sustain notes base(d) on holding controls
+				strumline.holdsGroup.forEachAlive(function(daNote:Note)
+				{
+					if (holdingNotes[Math.floor(daNote.noteData)] && daNote.canBeHit && !daNote.tooLate && daNote.isSustain)
+						noteHit(daNote, strumline.receptors.members[Math.floor(daNote.noteData)], strumline);
+				});
 
 				// reset animation
 				for (character in strumline.singingList)
@@ -480,13 +489,16 @@ class PlayState extends MusicBeatState
 
 	public function noteHit(daNote:Note, receptor:Receptor, strumline:Strumline)
 	{
-		if (!strumline.autoplay || !daNote.animation.curAnim.name.endsWith('holdend'))
-			receptor.playAnim('confirm', true);
-		for (i in strumline.singingList)
-			characterPlayDirection(i, receptor);
-		daNote.wasGoodHit = true;
-		if (!daNote.isSustain)
-			strumline.destroyNote(daNote);
+		if (!daNote.wasGoodHit)
+		{
+			daNote.wasGoodHit = true;
+			if (!strumline.autoplay || !daNote.animation.curAnim.name.endsWith('holdend'))
+				receptor.playAnim('confirm', true);
+			for (i in strumline.singingList)
+				characterPlayDirection(i, receptor);
+			if (!daNote.isSustain)
+				strumline.destroyNote(daNote);
+		}
 	}
 
 	public function characterPlayDirection(character:Character, receptor:Receptor)
