@@ -2,8 +2,6 @@ package states;
 
 import base.Conductor;
 import flixel.FlxBasic;
-import flixel.addons.ui.FlxUIState;
-import flixel.addons.ui.FlxUISubState;
 import states.ScriptableState.ScriptableSubState;
 
 /**
@@ -87,5 +85,5 @@ interface MusicHandler
 	public function beatHit():Void;
 	public function stepHit():Void;
 	public function finishSong():Void;
-	public function add(basic:FlxBasic):FlxBasic;
+	public function add(Object:FlxBasic):FlxBasic;
 }

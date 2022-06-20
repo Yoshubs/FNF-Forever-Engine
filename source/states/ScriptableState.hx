@@ -6,12 +6,18 @@ import flixel.addons.ui.FlxUISubState;
 
 class ScriptableState extends FlxUIState
 {
-    override function create()
-    {
-        super.create();
-        Controls.onActionPressed.add(onActionPressed);
-        Controls.onActionReleased.add(onActionReleased);
-    }
+	override function create()
+	{
+		super.create();
+		Controls.onActionPressed.add(onActionPressed);
+		Controls.onActionReleased.add(onActionReleased);
+	}
+
+	override function update(elapsed:Float)
+	{
+		super.update(elapsed);
+		Controls.update();
+	}
 
 	override function destroy()
 	{
@@ -25,13 +31,20 @@ class ScriptableState extends FlxUIState
 	function onActionReleased(action:String) {}
 }
 
-class ScriptableSubState extends FlxUISubState {
-    override function create()
-    {
-        super.create();
-        Controls.onActionPressed.add(onActionPressed);
-        Controls.onActionReleased.add(onActionReleased);
-    }
+class ScriptableSubState extends FlxUISubState
+{
+	override function create()
+	{
+		super.create();
+		Controls.onActionPressed.add(onActionPressed);
+		Controls.onActionReleased.add(onActionReleased);
+	}
+
+	override function update(elapsed:Float)
+	{
+		super.update(elapsed);
+		Controls.update();
+	}
 
 	override function destroy()
 	{

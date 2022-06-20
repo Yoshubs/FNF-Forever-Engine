@@ -139,12 +139,11 @@ class ChartParser
 			unspawnedNoteList.push(newNote);
 			if (unspawnNote.holdStep > 0)
 			{
-				var sustainLength = Std.int(unspawnNote.holdStep);
-				for (i in 1...sustainLength)
+				for (i in 1...Std.int(unspawnNote.holdStep))
 				{
-					var newNote:Note = new Note(unspawnNote.stepTime + i, unspawnNote.index, unspawnNote.type, unspawnNote.strumline, true,
+					var newSustain:Note = new Note(unspawnNote.stepTime + i, unspawnNote.index, unspawnNote.type, unspawnNote.strumline, true,
 						unspawnedNoteList[Std.int(unspawnedNoteList.length - 1)]);
-					unspawnedNoteList.push(newNote);
+					unspawnedNoteList.push(newSustain);
 				}
 			}
 			song.notes.splice(song.notes.indexOf(unspawnNote), 0);
