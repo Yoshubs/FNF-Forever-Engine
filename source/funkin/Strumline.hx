@@ -64,6 +64,17 @@ class Strumline extends FlxSpriteGroup
 		add(holdsGroup);
 		add(notesGroup);
 	}
+
+	public function destroyNote(daNote:Note)
+	{
+		daNote.kill();
+		if (daNote.isSustain)
+			holdsGroup.remove(daNote, true);
+		else
+			notesGroup.remove(daNote, true);
+		allNotes.remove(daNote, true);
+		daNote.destroy();
+	}
 }
 
 typedef ReceptorData =

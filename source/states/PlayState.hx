@@ -89,7 +89,7 @@ class PlayState extends MusicBeatState
 		camHUD.bgColor.alpha = 0;
 		FlxG.cameras.add(camHUD);
 
-		song = ChartParser.loadChart(this, "bopeebo", 1, FNF_LEGACY);
+		song = ChartParser.loadChart(this, "milf", 1, FNF_LEGACY);
 
 		Conductor.boundSong.play();
 		Conductor.boundVocals.play();
@@ -292,7 +292,7 @@ class PlayState extends MusicBeatState
 					if (strumline.downscroll)
 						killCheck = strumNote.y > (FlxG.height + strumNote.height);
 					if (killCheck)
-						strumNote.destroy();
+						strumline.destroyNote(strumNote);
 				});
 			}
 
@@ -480,12 +480,13 @@ class PlayState extends MusicBeatState
 
 	public function noteHit(daNote:Note, receptor:Receptor, strumline:Strumline)
 	{
-		receptor.playAnim('confirm', true);
+		if (!strumline.autoplay || !daNote.animation.curAnim.name.endsWith('holdend'))
+			receptor.playAnim('confirm', true);
 		for (i in strumline.singingList)
 			characterPlayDirection(i, receptor);
 		daNote.wasGoodHit = true;
 		if (!daNote.isSustain)
-			daNote.destroy();
+			strumline.destroyNote(daNote);
 	}
 
 	public function characterPlayDirection(character:Character, receptor:Receptor)
