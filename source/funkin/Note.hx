@@ -22,6 +22,8 @@ class Note extends OffsettedSprite
 	public var useCustomSpeed:Bool = false;
 	public var customNoteSpeed:Float;
 	public var noteSpeed(default, set):Float;
+	// it has come to this.
+	public var endHoldOffset:Float = Math.NEGATIVE_INFINITY;
 
 	public function set_noteSpeed(value:Float):Float
 	{
@@ -35,6 +37,7 @@ class Note extends OffsettedSprite
 
 	public var tooLate:Bool = false;
 	public var canBeHit:Bool = false;
+	public var wasGoodHit:Bool = false;
 
 	public static var scriptCache:Map<String, ForeverModule> = [];
 	public static var dataCache:Map<String, ReceptorData> = [];
