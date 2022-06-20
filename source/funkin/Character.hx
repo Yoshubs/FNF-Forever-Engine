@@ -4,12 +4,10 @@ import AssetManager.EngineImplementation;
 import base.Conductor;
 import base.ForeverDependencies.OffsettedSprite;
 import base.ScriptHandler;
-import flixel.FlxSprite;
 import flixel.math.FlxPoint;
 import funkin.compat.PsychCharacter;
 import haxe.Json;
 import haxe.ds.StringMap;
-import sys.io.File;
 
 using StringTools;
 

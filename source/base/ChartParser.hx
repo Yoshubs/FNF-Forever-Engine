@@ -5,7 +5,6 @@ import base.MusicSynced;
 import funkin.Note;
 import haxe.Json;
 import states.MusicBeatState;
-import states.PlayState;
 
 typedef SongFormat =
 {

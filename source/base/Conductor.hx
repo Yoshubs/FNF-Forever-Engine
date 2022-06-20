@@ -1,6 +1,5 @@
 package base;
 
-import flixel.FlxG;
 import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.system.FlxSound;
 import openfl.media.Sound;

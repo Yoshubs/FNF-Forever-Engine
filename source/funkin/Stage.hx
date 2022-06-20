@@ -3,10 +3,8 @@ package funkin;
 import AssetManager.EngineImplementation;
 import base.ScriptHandler;
 import flixel.FlxBasic;
-import flixel.FlxG;
 import flixel.group.FlxGroup.FlxTypedGroup;
 import haxe.ds.StringMap;
-import states.PlayState;
 
 class Stage extends FlxTypedGroup<FlxBasic>
 {

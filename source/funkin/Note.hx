@@ -2,11 +2,9 @@ package funkin;
 
 import base.Conductor;
 import base.ForeverDependencies.OffsettedSprite;
-import base.ScriptHandler.ForeverModule;
 import base.ScriptHandler;
 import funkin.Strumline.ReceptorData;
 import haxe.Json;
-import states.PlayState;
 
 class Note extends OffsettedSprite
 {

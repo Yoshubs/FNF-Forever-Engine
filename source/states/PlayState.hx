@@ -1,11 +1,9 @@
 package states;
 
 import base.ChartParser;
-import base.ChartParser;
 import base.Conductor;
 import base.Controls;
 import base.MusicSynced.CameraEvent;
-import base.MusicSynced.UnspawnedNote;
 import base.ScriptHandler;
 import dependency.FlxTiledSpriteExt;
 import flixel.FlxCamera;
@@ -14,11 +12,9 @@ import flixel.FlxObject;
 import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.math.FlxMath;
 import flixel.math.FlxPoint;
-import flixel.system.FlxSound;
 import funkin.Character;
 import funkin.Note;
 import funkin.Stage;
-import funkin.Strumline.Receptor;
 import funkin.Strumline;
 import funkin.UI;
 
