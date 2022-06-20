@@ -160,6 +160,10 @@ class PlayState extends MusicBeatState
 	{
 		super.update(elapsed);
 
+		// botplay
+		if (FlxG.keys.justPressed.SIX)
+			bfStrums.autoplay = !bfStrums.autoplay;
+
 		var lerpVal:Float = (elapsed * 2.4) * cameraSpeed; // cval
 		camFollowPos.setPosition(FlxMath.lerp(camFollowPos.x, camFollow.x, lerpVal), FlxMath.lerp(camFollowPos.y, camFollow.y, lerpVal));
 
@@ -253,6 +257,7 @@ class PlayState extends MusicBeatState
 
 							// clip sustain
 							if (strumNote.isSustain
+								&& (strumNote.parentNote != null && strumNote.parentNote.wasGoodHit)
 								&& (strumline.autoplay
 									|| (strumNote.wasGoodHit || (strumNote.prevNote.wasGoodHit && !strumNote.canBeHit))))
 							{
@@ -313,18 +318,25 @@ class PlayState extends MusicBeatState
 				}
 
 				// hit sustain notes base(d) on holding controls
-				strumline.holdsGroup.forEachAlive(function(daNote:Note)
+				if (!strumline.autoplay && holdingNotes.contains(true))
 				{
-					if (holdingNotes[Math.floor(daNote.noteData)] && daNote.canBeHit && !daNote.tooLate && daNote.isSustain)
-						noteHit(daNote, strumline.receptors.members[Math.floor(daNote.noteData)], strumline);
-				});
+					strumline.holdsGroup.forEachAlive(function(daNote:Note)
+					{
+						if ((daNote.parentNote != null && daNote.parentNote.wasGoodHit)
+							&& holdingNotes[Math.floor(daNote.noteData)]
+							&& daNote.canBeHit
+							&& !daNote.tooLate
+							&& daNote.isSustain)
+							noteHit(daNote, strumline.receptors.members[Math.floor(daNote.noteData)], strumline);
+					});
+				}
 
 				// reset animation
 				for (character in strumline.singingList)
 				{
 					if (character != null
 						&& (character.holdTimer > (Conductor.stepCrochet * 4) / 1000)
-						&& (!holdingKeys.contains(true) || strumline.autoplay))
+						&& (strumline.autoplay || !holdingKeys.contains(true)))
 					{
 						if (character.animation.curAnim.name.startsWith('sing') && !character.animation.curAnim.name.endsWith('miss'))
 							character.dance();
@@ -429,57 +441,60 @@ class PlayState extends MusicBeatState
 			// find the right receptor(s) within the controlled strumlines
 			for (strumline in controlledStrumlines)
 			{
-				for (receptor in strumline.receptors)
+				if (!strumline.autoplay)
 				{
-					// if this is the specified action
-					if (action == receptor.action)
+					for (receptor in strumline.receptors)
 					{
-						// placeholder
-						// trace(action);
-
-						var possibleNoteList:Array<Note> = [];
-						var pressedNotes:Array<Note> = [];
-
-						strumline.notesGroup.forEachAlive(function(daNote:Note)
+						// if this is the specified action
+						if (action == receptor.action)
 						{
-							if ((daNote.noteData == receptor.noteData)
-								&& !daNote.isSustain
-								&& daNote.canBeHit
-								&& !daNote.tooLate
-								&& !daNote.wasGoodHit)
-								possibleNoteList.push(daNote);
-						});
-						possibleNoteList.sort((a, b) -> Std.int(a.stepTime - b.stepTime));
+							// placeholder
+							// trace(action);
 
-						if (possibleNoteList.length > 0)
-						{
-							var eligable = true;
-							var firstNote = true;
-							// loop through the possible notes
-							for (coolNote in possibleNoteList)
+							var possibleNoteList:Array<Note> = [];
+							var pressedNotes:Array<Note> = [];
+
+							strumline.notesGroup.forEachAlive(function(daNote:Note)
 							{
-								for (noteDouble in pressedNotes)
-								{
-									if (Math.abs(noteDouble.stepTime - coolNote.stepTime) < 0.1)
-										firstNote = false;
-									else
-										eligable = false;
-								}
+								if ((daNote.noteData == receptor.noteData)
+									&& !daNote.isSustain
+									&& daNote.canBeHit
+									&& !daNote.tooLate
+									&& !daNote.wasGoodHit)
+									possibleNoteList.push(daNote);
+							});
+							possibleNoteList.sort((a, b) -> Std.int(a.stepTime - b.stepTime));
 
-								if (eligable)
+							if (possibleNoteList.length > 0)
+							{
+								var eligable = true;
+								var firstNote = true;
+								// loop through the possible notes
+								for (coolNote in possibleNoteList)
 								{
-									noteHit(coolNote, receptor, strumline);
-									// goodNoteHit(coolNote, boyfriend, boyfriendStrums, firstNote); // then hit the note
-									pressedNotes.push(coolNote);
+									for (noteDouble in pressedNotes)
+									{
+										if (Math.abs(noteDouble.stepTime - coolNote.stepTime) < 0.1)
+											firstNote = false;
+										else
+											eligable = false;
+									}
+
+									if (eligable)
+									{
+										noteHit(coolNote, receptor, strumline);
+										// goodNoteHit(coolNote, boyfriend, boyfriendStrums, firstNote); // then hit the note
+										pressedNotes.push(coolNote);
+									}
+									// end of this little check
 								}
-								// end of this little check
+								//
 							}
-							//
-						}
 
-						if (receptor.animation.curAnim.name != 'confirm')
-							receptor.playAnim('pressed');
-						// receptor.playAnim('confirm');
+							if (receptor.animation.curAnim.name != 'confirm')
+								receptor.playAnim('pressed');
+							// receptor.playAnim('confirm');
+						}
 					}
 				}
 			}
@@ -515,14 +530,17 @@ class PlayState extends MusicBeatState
 			// find the right receptor(s) within the controlled strumlines
 			for (strumline in controlledStrumlines)
 			{
-				for (receptor in strumline.receptors)
+				if (!strumline.autoplay)
 				{
-					// if this is the specified action
-					if (action == receptor.action)
+					for (receptor in strumline.receptors)
 					{
-						// placeholder
-						// trace(action);
-						receptor.playAnim('static');
+						// if this is the specified action
+						if (action == receptor.action)
+						{
+							// placeholder
+							// trace(action);
+							receptor.playAnim('static');
+						}
 					}
 				}
 			}

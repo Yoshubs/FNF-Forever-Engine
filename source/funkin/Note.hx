@@ -15,6 +15,9 @@ class Note extends OffsettedSprite
 	//
 	public var prevNote:Note;
 
+	public var parentNote:Note;
+	public var childrenNotes:Array<Note> = [];
+
 	// values
 	public var offsetX:Float = 0;
 	public var offsetY:Float = 0;
@@ -54,6 +57,17 @@ class Note extends OffsettedSprite
 		this.prevNote = prevNote;
 
 		super();
+
+		// determine parent note
+		if (isSustain && prevNote != null)
+		{
+			parentNote = prevNote;
+			while (parentNote.parentNote != null)
+				parentNote = parentNote.parentNote;
+			parentNote.childrenNotes.push(this);
+		}
+		else if (!isSustain)
+			parentNote = null;
 
 		loadNote(noteType);
 	}
