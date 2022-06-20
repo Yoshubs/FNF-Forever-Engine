@@ -1,5 +1,6 @@
 package states;
 
+import flixel.math.FlxRect;
 import base.ChartParser;
 import base.Conductor;
 import base.Controls;
@@ -236,7 +237,6 @@ class PlayState extends MusicBeatState
 						if (strumNote.isSustain)
 						{
 							final positionVal:Int = 4;
-
 							strumNote.y -= ((strumNote.height / positionVal) * downscrollMultiplier);
 							if (strumNote.animation.curAnim.name.endsWith('holdend') && strumNote.prevNote != null)
 							{
@@ -256,6 +256,33 @@ class PlayState extends MusicBeatState
 								}
 								else // if sustain is very short, make it visible anyways
 									strumNote.y += ((strumNote.height / (positionVal / 3)) * downscrollMultiplier);
+							}
+
+							// clip sustain
+							if (strumNote.isSustain
+								&& (strumline.autoplay
+									|| (strumNote.wasGoodHit || (strumNote.prevNote.wasGoodHit && !strumNote.canBeHit))))
+							{
+								var swagRect:FlxRect = null;
+								var center:Float = receptor.y + (receptor.swagWidth / (positionVal / 2));
+								if (strumline.downscroll)
+								{
+									strumNote.flipY = true;
+									if (strumNote.y - strumNote.offset.y * strumNote.scale.y + strumNote.height >= center)
+									{
+										swagRect = new FlxRect(0, 0, strumNote.frameWidth, strumNote.frameHeight);
+										swagRect.height = (center - strumNote.y) / strumNote.scale.y;
+										swagRect.y = strumNote.frameHeight - swagRect.height;
+									}
+								}
+								else if (strumNote.y + strumNote.offset.y * strumNote.scale.y <= center)
+								{
+									swagRect = new FlxRect(0, 0, strumNote.width / strumNote.scale.x, strumNote.height / strumNote.scale.y);
+									swagRect.y = (center - strumNote.y) / strumNote.scale.y;
+									swagRect.height -= swagRect.y;
+								}
+								if (swagRect != null)
+									strumNote.clipRect = swagRect;
 							}
 						}
 					}
