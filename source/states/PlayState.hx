@@ -233,29 +233,23 @@ class PlayState extends MusicBeatState
 							+ (downscrollMultiplier *
 								-((Conductor.songPosition - (strumNote.stepTime * Conductor.stepCrochet)) * (0.45 * strumNote.noteSpeed)));
 
-						// shitty note hack I hate it so much
 						if (strumNote.isSustain)
 						{
-							final positionVal:Int = 4;
-							strumNote.y -= ((strumNote.height / positionVal) * downscrollMultiplier);
+							// shitty note hack I hate it so much
+							strumNote.y -= ((strumNote.height / 2) * downscrollMultiplier);
 							if (strumNote.animation.curAnim.name.endsWith('holdend') && strumNote.prevNote != null)
 							{
-								if (strumNote.prevNote.isSustain)
+								strumNote.y -= ((strumNote.prevNote.height / 2) * downscrollMultiplier);
+								if (strumline.downscroll)
 								{
-									strumNote.y -= ((strumNote.prevNote.height / positionVal) * downscrollMultiplier);
-									if (strumline.downscroll)
-									{
-										strumNote.y += strumNote.height * positionVal;
-										if (strumNote.endHoldOffset == Math.NEGATIVE_INFINITY) // set the end hold offset yeah I hate that I fix this like this
-											strumNote.endHoldOffset = (strumNote.prevNote.y - (strumNote.y + strumNote.height));
-										else
-											strumNote.y += strumNote.endHoldOffset;
-									}
-									else // this system is funny like that
-										strumNote.y += ((strumNote.height / positionVal) * downscrollMultiplier);
+									strumNote.y += (strumNote.height * 2);
+									if (strumNote.endHoldOffset == Math.NEGATIVE_INFINITY) // set the end hold offset yeah I hate that I fix this like this
+										strumNote.endHoldOffset = (strumNote.prevNote.y - (strumNote.y + strumNote.height));
+									else
+										strumNote.y += strumNote.endHoldOffset;
 								}
-								else // if sustain is very short, make it visible anyways
-									strumNote.y += ((strumNote.height / (positionVal / 3)) * downscrollMultiplier);
+								else // this system is funny like that
+									strumNote.y += ((strumNote.height / 2) * downscrollMultiplier);
 							}
 
 							// clip sustain
@@ -264,7 +258,7 @@ class PlayState extends MusicBeatState
 									|| (strumNote.wasGoodHit || (strumNote.prevNote.wasGoodHit && !strumNote.canBeHit))))
 							{
 								var swagRect:FlxRect = null;
-								var center:Float = receptor.y + (receptor.swagWidth / (positionVal / 2));
+								var center:Float = receptor.y + (receptor.swagWidth / 2);
 								if (strumline.downscroll)
 								{
 									strumNote.flipY = true;
@@ -294,11 +288,11 @@ class PlayState extends MusicBeatState
 					}
 
 					// if the note is off screen (above)
-					if ((downscrollMultiplier > 0 && strumNote.y < -strumNote.height)
-						|| (downscrollMultiplier <= 0 && strumNote.y > (FlxG.height + strumNote.height)))
-					{
+					var killCheck:Bool = strumNote.y < -strumNote.height;
+					if (strumline.downscroll)
+						killCheck = strumNote.y > (FlxG.height + strumNote.height);
+					if (killCheck)
 						strumNote.destroy();
-					}
 				});
 			}
 

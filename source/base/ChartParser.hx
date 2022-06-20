@@ -103,10 +103,6 @@ class ChartParser
 							}
 							returnSong.notes.push(newNote);
 						}
-						else
-						{
-							//
-						}
 					}
 				}
 
@@ -136,9 +132,10 @@ class ChartParser
 		{
 			var newNote:Note = new Note(unspawnNote.stepTime, unspawnNote.index, unspawnNote.type, unspawnNote.strumline);
 			unspawnedNoteList.push(newNote);
+			// hold note bullshit
 			if (unspawnNote.holdStep > 0)
 			{
-				for (i in 1...Std.int(unspawnNote.holdStep))
+				for (i in 1...Std.int(unspawnNote.holdStep) + 1)
 				{
 					var newSustain:Note = new Note(unspawnNote.stepTime + i, unspawnNote.index, unspawnNote.type, unspawnNote.strumline, true,
 						unspawnedNoteList[Std.int(unspawnedNoteList.length - 1)]);
@@ -148,15 +145,12 @@ class ChartParser
 			song.notes.splice(song.notes.indexOf(unspawnNote), 0);
 		}
 
-		// hold note bullshit
-
 		// sort notes
-		// /*
 		haxe.ds.ArraySort.sort(unspawnedNoteList, function(a, b):Int
 		{
 			return Std.int(a.stepTime - b.stepTime);
 		});
-		//  */
+
 		return song;
 	}
 }
