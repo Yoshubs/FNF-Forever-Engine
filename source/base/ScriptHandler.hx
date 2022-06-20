@@ -118,12 +118,12 @@ class ForeverModule
 	public function getAsset(directory:String, type:AssetType)
 	{
 		var path:String = AssetManager.getPath(directory, assetGroup, type);
-		trace('attempting path $path');
+		// trace('attempting path $path');
 		if (FileSystem.exists(path))
 			return AssetManager.getAsset(directory, type, assetGroup);
 		else
 		{
-			trace('path failed');
+			// trace('path failed');
 			return AssetManager.getAsset(directory, type);
 		}
 	}

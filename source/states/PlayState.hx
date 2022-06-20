@@ -92,7 +92,7 @@ class PlayState extends MusicBeatState
 		camHUD.bgColor.alpha = 0;
 		FlxG.cameras.add(camHUD);
 
-		song = ChartParser.loadChart(this, "game-over", 1, FNF_LEGACY);
+		song = ChartParser.loadChart(this, "bopeebo", 1, FNF_LEGACY);
 
 		Conductor.boundSong.play();
 		Conductor.boundVocals.play();
@@ -369,7 +369,7 @@ class PlayState extends MusicBeatState
 					if (action == receptor.action)
 					{
 						// placeholder
-						trace(action);
+						// trace(action);
 
 						var possibleNoteList:Array<Note> = [];
 						var pressedNotes:Array<Note> = [];
@@ -445,7 +445,7 @@ class PlayState extends MusicBeatState
 					if (action == receptor.action)
 					{
 						// placeholder
-						trace(action);
+						// trace(action);
 						receptor.playAnim('static');
 					}
 				}

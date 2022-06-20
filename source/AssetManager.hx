@@ -59,12 +59,12 @@ class AssetManager
 				return returnGraphic(gottenPath, false);
 			case SPARROW:
 				var graphicPath = getPath(directory, group, IMAGE);
-				trace('sparrow graphic path $graphicPath');
+				// trace('sparrow graphic path $graphicPath');
 				var graphic:FlxGraphic = returnGraphic(graphicPath, true);
-				trace('sparrow xml path $gottenPath');
+				// trace('sparrow xml path $gottenPath');
 				return FlxAtlasFrames.fromSparrow(graphic, File.getContent(gottenPath));
 			default:
-				trace('returning directory $gottenPath');
+				// trace('returning directory $gottenPath');
 				return gottenPath;
 		}
 		trace('returning null for $gottenPath');
@@ -97,17 +97,17 @@ class AssetManager
 					bitmap.dispose();
 					bitmap.disposeImage();
 					bitmap = null;
-					trace('new texture $key, bitmap is $bitmap');
+					// trace('new texture $key, bitmap is $bitmap');
 					newGraphic = FlxGraphic.fromBitmapData(BitmapData.fromTexture(texture), false, key, false);
 				}
 				else
 				{
 					newGraphic = FlxGraphic.fromBitmapData(bitmap, false, key, false);
-					trace('new bitmap $key, not textured');
+					// trace('new bitmap $key, not textured');
 				}
 				keyedAssets.set(key, newGraphic);
 			}
-			trace('graphic returning $key with gpu rendering $textureCompression');
+			// trace('graphic returning $key with gpu rendering $textureCompression');
 			return keyedAssets.get(key);
 		}
 		trace('graphic returning null at $key with gpu rendering $textureCompression');
@@ -125,9 +125,9 @@ class AssetManager
 			if (!keyedAssets.exists(key))
 			{
 				keyedAssets.set(key, Sound.fromFile('./' + key));
-				trace('new sound $key');
+				// trace('new sound $key');
 			}
-			trace('sound returning $key');
+			// trace('sound returning $key');
 			return keyedAssets.get(key);
 		}
 		trace('sound returning null at $key');
@@ -174,20 +174,20 @@ class AssetManager
 				case MODULE:
 					extensions = ['.hxs'];
 			}
-			trace(extensions);
+			// trace(extensions);
 			// apply the extension of the directory
 			for (i in extensions)
 			{
 				var returnDirectory:String = '$directory$i';
-				trace('attempting directory $returnDirectory');
+				// trace('attempting directory $returnDirectory');
 				if (FileSystem.exists(returnDirectory))
 				{
-					trace('successful extension $i');
+					// trace('successful extension $i');
 					return returnDirectory;
 				}
 			}
 		}
-		trace('no extension needed, returning $directory');
+		// trace('no extension needed, returning $directory');
 		return directory;
 	}
 }

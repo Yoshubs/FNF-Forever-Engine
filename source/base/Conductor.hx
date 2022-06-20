@@ -141,7 +141,7 @@ class Conductor
 	public static function resyncTime()
 	{
 		// resynchronization
-		trace('resyncing song time ${boundSong.time}');
+		// trace('resyncing song time ${boundSong.time}');
 		songPosition = boundSong.time;
 		boundSong.play();
 		if (boundVocals != null)
@@ -150,6 +150,6 @@ class Conductor
 			boundVocals.time = songPosition;
 			boundVocals.play();
 		}
-		trace('new song time ${songPosition}');
+		// trace('new song time ${songPosition}');
 	}
 }

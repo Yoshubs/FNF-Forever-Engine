@@ -102,7 +102,7 @@ class Note extends OffsettedSprite
 		// load up the note data
 		if (!dataCache.exists(noteType))
 		{
-			trace('setting note data $noteType');
+			// trace('setting note data $noteType');
 			dataCache.set(noteType, cast Json.parse(AssetManager.getAsset(noteType, JSON, 'notetypes/$noteType')));
 		}
 		return dataCache.get(noteType);
@@ -113,7 +113,7 @@ class Note extends OffsettedSprite
 		// load up the note script
 		if (!scriptCache.exists(noteType))
 		{
-			trace('setting note script $noteType');
+			// trace('setting note script $noteType');
 			scriptCache.set(noteType, ScriptHandler.loadModule(noteType, 'notetypes/$noteType'));
 		}
 		return scriptCache.get(noteType);
