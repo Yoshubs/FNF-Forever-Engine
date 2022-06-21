@@ -5,8 +5,8 @@ function generateReceptor() {
 	receptor.animation.addByPrefix('pressed', stringSect + ' press', 24, false);
 	receptor.animation.addByPrefix('confirm', stringSect + ' confirm', 24, false);
 
-	var baseX:Float = 62;
-	var baseY:Float = 62;
+	var baseX:Int = 62;
+	var baseY:Int = 62;
 	switch (receptor.noteData) {
 		case 0:
 			baseX -= 2;
