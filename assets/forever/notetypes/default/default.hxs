@@ -21,6 +21,7 @@ function generateReceptor() {
 			baseY -= 1;
 	}
 	receptor.addOffset('confirm', baseX, baseY);
+
 	receptor.playAnim('static');
 }
 
