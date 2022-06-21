@@ -4,7 +4,23 @@ function generateReceptor() {
 	receptor.animation.addByPrefix('static', 'arrow' + stringSect.toUpperCase());
 	receptor.animation.addByPrefix('pressed', stringSect + ' press', 24, false);
 	receptor.animation.addByPrefix('confirm', stringSect + ' confirm', 24, false);
-	receptor.addOffset('confirm', 62, 62);
+
+	var baseX:Float = 62;
+	var baseY:Float = 62;
+	switch (receptor.noteData) {
+		case 0:
+			baseX -= 2;
+			baseY -= 3;
+		case 1:
+			baseX += 3;
+			baseY += 2;
+		case 2:
+			baseX += 2;
+		case 3:
+			baseX -= 2;
+			baseY -= 1;
+	}
+	receptor.addOffset('confirm', baseX, baseY);
 	receptor.playAnim('static');
 }
 
