@@ -5,6 +5,16 @@ function loadAnimations() {
 	character.animation.addByPrefix('singLEFT', 'Pico Note Right0', 24, false);
 	character.animation.addByPrefix('singRIGHT', 'Pico NOTE LEFT0', 24, false);
 	
+	character.addOffset('idle', 0, 0);
+	character.addOffset('singRIGHT', -68, -7);
+	character.addOffset('singUP', -29, 27);
+	character.addOffset('singDOWN', 200, -70);
+	character.addOffset('singLEFT', 65, 9);
+	// character.addOffset('singRIGHTmiss', -60, 41);
+	// character.addOffset('singLEFTmiss', 62, 64);
+	// character.addOffset('singDOWNmiss', 210, -28);
+	// character.addOffset('singUPmiss', -19, 67);
+
 	character.playAnim('idle');
 	character.flipX = true;
 	//

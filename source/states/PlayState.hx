@@ -1,6 +1,5 @@
 package states;
 
-import flixel.math.FlxRect;
 import base.ChartParser;
 import base.Conductor;
 import base.Controls;
@@ -13,6 +12,8 @@ import flixel.FlxObject;
 import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.math.FlxMath;
 import flixel.math.FlxPoint;
+import flixel.math.FlxRect;
+import flixel.system.FlxSound;
 import funkin.Character;
 import funkin.Note;
 import funkin.Stage;
@@ -101,17 +102,17 @@ class PlayState extends MusicBeatState
 		boyfriend = new Character(750, 850, PSYCH, 'bf-psych', 'BOYFRIEND', true);
 		add(boyfriend);
 
-		dad = new Character(50, 850, PSYCH, 'bf-psych', 'BOYFRIEND', false);
+		dad = new Character(50, 850, FOREVER, 'pico', 'Pico_FNF_assetss', false);
 		add(dad);
 
 		// handle UI stuff
 		strumlines = new FlxTypedGroup<Strumline>();
 		var separation:Float = FlxG.width / 4;
 		// dad
-		dadStrums = new Strumline((FlxG.width / 2) - separation, FlxG.height / 6, 'default', true, false, false, [dad], [dad]);
+		dadStrums = new Strumline((FlxG.width / 2) - separation, FlxG.height / 6, 'default', true, false, [dad], [dad]);
 		strumlines.add(dadStrums);
 		// bf
-		bfStrums = new Strumline((FlxG.width / 2) + separation, FlxG.height / 6, 'default', false, true, false, [boyfriend], [boyfriend]);
+		bfStrums = new Strumline((FlxG.width / 2) + separation, FlxG.height / 6, 'default', false, true, [boyfriend], [boyfriend]);
 		strumlines.add(bfStrums);
 		add(strumlines);
 		controlledStrumlines = [bfStrums];
@@ -236,67 +237,47 @@ class PlayState extends MusicBeatState
 							+ (downscrollMultiplier *
 								-((Conductor.songPosition - (strumNote.stepTime * Conductor.stepCrochet)) * (0.45 * strumNote.noteSpeed)));
 
-						if (strumNote.isSustain)
+						var center:Float = receptor.y + (strumNote.receptorData.separation * strumNote.receptorData.size) / 2;
+						var scrollSpeed:Float = downscrollMultiplier * strumNote.noteSpeed;
+						if (strumNote.isSustain && scrollSpeed != 0)
 						{
-							// shitty note hack I hate it so much
-							strumNote.y -= ((strumNote.height / 2) * downscrollMultiplier);
-							if (strumNote.animation.curAnim.name.endsWith('holdend') && strumNote.prevNote != null)
+							if (scrollSpeed < 0)
 							{
-								strumNote.y -= ((strumNote.prevNote.height / 2) * downscrollMultiplier);
-								if (strumline.downscroll)
+								strumNote.flipY = true;
+								if (strumNote.y - strumNote.offset.y * strumNote.scale.y + strumNote.height >= center
+									&& (strumline.autoplay || strumNote.wasGoodHit))
 								{
-									strumNote.y += (strumNote.height * 2);
-									if (strumNote.endHoldOffset == Math.NEGATIVE_INFINITY) // set the end hold offset yeah I hate that I fix this like this
-										strumNote.endHoldOffset = (strumNote.prevNote.y - (strumNote.y + strumNote.height));
-									else
-										strumNote.y += strumNote.endHoldOffset;
+									var swagRect:FlxRect = new FlxRect(0, 0, strumNote.frameWidth, strumNote.frameHeight);
+									swagRect.height = (center - strumNote.y) / strumNote.scale.y;
+									swagRect.y = strumNote.frameHeight - swagRect.height;
+									strumNote.clipRect = swagRect;
 								}
-								else // this system is funny like that
-									strumNote.y += ((strumNote.height / 2) * downscrollMultiplier);
 							}
-
-							// clip sustain
-							if (strumNote.isSustain
-								&& (strumNote.parentNote != null && strumNote.parentNote.wasGoodHit)
-								&& (strumline.autoplay
-									|| (strumNote.wasGoodHit || (strumNote.prevNote.wasGoodHit && !strumNote.canBeHit))))
+							else
 							{
-								var swagRect:FlxRect = null;
-								var center:Float = receptor.y + (receptor.swagWidth / 2);
-								if (strumline.downscroll)
+								if (strumNote.y + strumNote.offset.y * strumNote.scale.y <= center
+									&& (strumline.autoplay || strumNote.wasGoodHit))
 								{
-									strumNote.flipY = true;
-									if (strumNote.y - strumNote.offset.y * strumNote.scale.y + strumNote.height >= center)
-									{
-										swagRect = new FlxRect(0, 0, strumNote.frameWidth, strumNote.frameHeight);
-										swagRect.height = (center - strumNote.y) / strumNote.scale.y;
-										swagRect.y = strumNote.frameHeight - swagRect.height;
-									}
-								}
-								else if (strumNote.y + strumNote.offset.y * strumNote.scale.y <= center)
-								{
-									swagRect = new FlxRect(0, 0, strumNote.width / strumNote.scale.x, strumNote.height / strumNote.scale.y);
+									var swagRect:FlxRect = new FlxRect(0, 0, strumNote.width / strumNote.scale.x, strumNote.height / strumNote.scale.y);
 									swagRect.y = (center - strumNote.y) / strumNote.scale.y;
 									swagRect.height -= swagRect.y;
-								}
-								if (swagRect != null)
 									strumNote.clipRect = swagRect;
+								}
 							}
 						}
 
-						if (strumline.autoplay)
-						{
-							if (strumNote.stepTime * Conductor.stepCrochet <= Conductor.songPosition)
-								noteHit(strumNote, receptor, strumline);
-						}
+						var doKill:Bool = strumNote.y < -strumNote.height;
+						if (scrollSpeed < 0)
+							doKill = strumNote.y > (FlxG.height + strumNote.height);
+						if (doKill && (strumNote.tooLate || strumNote.wasGoodHit))
+							strumline.destroyNote(strumNote);
 					}
 
-					// if the note is off screen (above)
-					var killCheck:Bool = strumNote.y < -strumNote.height;
-					if (strumline.downscroll)
-						killCheck = strumNote.y > (FlxG.height + strumNote.height);
-					if (killCheck)
-						strumline.destroyNote(strumNote);
+					if (strumline.autoplay)
+					{
+						if (strumNote.stepTime * Conductor.stepCrochet <= Conductor.songPosition && !strumNote.wasGoodHit)
+							goodNoteHit(strumNote, receptor, strumline);
+					}
 				});
 			}
 
@@ -308,28 +289,24 @@ class PlayState extends MusicBeatState
 				var holdingNotes:Array<Bool> = [];
 				for (receptor in strumline.receptors)
 				{
-					for (key in Controls.keyPressed)
+					for (key in 0...Controls.keyPressed.length)
 					{
-						if (receptor.action == Controls.getActionFromKey(key))
-							holdingKeys.push(true);
-						if (receptorActionList.contains(receptor.action))
-							holdingNotes[receptor.noteData] = Controls.isActionPressed(receptor.action);
+						if (receptor.action == Controls.getActionFromKey(Controls.keyPressed[key]))
+							holdingKeys[receptor.noteData] = true;
 					}
 				}
 
-				// hit sustain notes base(d) on holding controls
-				if (!strumline.autoplay && holdingNotes.contains(true))
+				strumline.holdsGroup.forEachAlive(function(coolNote:Note)
 				{
-					strumline.holdsGroup.forEachAlive(function(daNote:Note)
+					for (receptor in strumline.receptors)
 					{
-						if ((daNote.parentNote != null && daNote.parentNote.wasGoodHit)
-							&& holdingNotes[Math.floor(daNote.noteData)]
-							&& daNote.canBeHit
-							&& !daNote.tooLate
-							&& daNote.isSustain)
-							noteHit(daNote, strumline.receptors.members[Math.floor(daNote.noteData)], strumline);
-					});
-				}
+						if (coolNote.isSustain
+							&& coolNote.canBeHit
+							&& coolNote.noteData == receptor.noteData
+							&& holdingKeys[coolNote.noteData])
+							goodNoteHit(coolNote, receptor, strumline);
+					}
+				});
 
 				// reset animation
 				for (character in strumline.singingList)
@@ -456,11 +433,7 @@ class PlayState extends MusicBeatState
 
 							strumline.notesGroup.forEachAlive(function(daNote:Note)
 							{
-								if ((daNote.noteData == receptor.noteData)
-									&& !daNote.isSustain
-									&& daNote.canBeHit
-									&& !daNote.tooLate
-									&& !daNote.wasGoodHit)
+								if (!daNote.isSustain && daNote.canBeHit && !daNote.tooLate && !daNote.wasGoodHit && daNote.noteData == receptor.noteData)
 									possibleNoteList.push(daNote);
 							});
 							possibleNoteList.sort((a, b) -> Std.int(a.stepTime - b.stepTime));
@@ -482,8 +455,7 @@ class PlayState extends MusicBeatState
 
 									if (eligable)
 									{
-										noteHit(coolNote, receptor, strumline);
-										// goodNoteHit(coolNote, boyfriend, boyfriendStrums, firstNote); // then hit the note
+										goodNoteHit(coolNote, receptor, strumline);
 										pressedNotes.push(coolNote);
 									}
 									// end of this little check
@@ -502,18 +474,15 @@ class PlayState extends MusicBeatState
 		//
 	}
 
-	public function noteHit(daNote:Note, receptor:Receptor, strumline:Strumline)
+	public function goodNoteHit(daNote:Note, receptor:Receptor, strumline:Strumline)
 	{
-		if (!daNote.wasGoodHit)
-		{
-			daNote.wasGoodHit = true;
-			if (!strumline.autoplay || !daNote.animation.curAnim.name.endsWith('holdend'))
-				receptor.playAnim('confirm', true);
-			for (i in strumline.singingList)
-				characterPlayDirection(i, receptor);
-			if (!daNote.isSustain)
-				strumline.destroyNote(daNote);
-		}
+		daNote.wasGoodHit = true;
+		receptor.playAnim('confirm');
+		for (i in strumline.singingList)
+			characterPlayDirection(i, receptor);
+
+		if (!daNote.isSustain)
+			strumline.destroyNote(daNote);
 	}
 
 	public function characterPlayDirection(character:Character, receptor:Receptor)
