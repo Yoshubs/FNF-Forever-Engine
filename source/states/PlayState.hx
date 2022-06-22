@@ -211,7 +211,7 @@ class PlayState extends MusicBeatState
 			// control notes
 			for (strumline in strumlines)
 			{
-				var downscrollMultiplier:Int = (strumline.downscroll ? -1 : 1);
+				var downscrollMultiplier:Int = 1;
 
 				for (receptor in strumline.receptors)
 				{
@@ -229,8 +229,8 @@ class PlayState extends MusicBeatState
 						else
 							strumNote.noteSpeed = songSpeed;
 
-						var receptor:Receptor = strumline.receptors.members[Math.floor(strumNote.noteData)];
 						// update position
+						var receptor:Receptor = strumline.receptors.members[Math.floor(strumNote.noteData)];
 						strumNote.x = receptor.x + strumNote.offsetX;
 						strumNote.y = receptor.y
 							+ strumNote.offsetY
@@ -266,18 +266,18 @@ class PlayState extends MusicBeatState
 							}
 						}
 
-						var doKill:Bool = strumNote.y < -strumNote.height;
-						if (scrollSpeed < 0)
-							doKill = strumNote.y > (FlxG.height + strumNote.height);
-						if (doKill && (strumNote.tooLate || strumNote.wasGoodHit))
-							strumline.destroyNote(strumNote);
+						if (strumline.autoplay)
+						{
+							if (strumNote.stepTime * Conductor.stepCrochet <= Conductor.songPosition && !strumNote.wasGoodHit)
+								goodNoteHit(strumNote, receptor, strumline);
+						}
 					}
 
-					if (strumline.autoplay)
-					{
-						if (strumNote.stepTime * Conductor.stepCrochet <= Conductor.songPosition && !strumNote.wasGoodHit)
-							goodNoteHit(strumNote, receptor, strumline);
-					}
+					var doKill:Bool = strumNote.y < -strumNote.height;
+					if ((downscrollMultiplier * strumNote.noteSpeed) < 0)
+						doKill = strumNote.y > (FlxG.height + strumNote.height);
+					if (doKill && (strumNote.tooLate || strumNote.wasGoodHit))
+						strumline.destroyNote(strumNote);
 				});
 			}
 
@@ -286,7 +286,6 @@ class PlayState extends MusicBeatState
 			{
 				// get notes held
 				var holdingKeys:Array<Bool> = [];
-				var holdingNotes:Array<Bool> = [];
 				for (receptor in strumline.receptors)
 				{
 					for (key in 0...Controls.keyPressed.length)
@@ -302,6 +301,7 @@ class PlayState extends MusicBeatState
 					{
 						if (coolNote.isSustain
 							&& coolNote.canBeHit
+							&& !coolNote.wasGoodHit
 							&& coolNote.noteData == receptor.noteData
 							&& holdingKeys[coolNote.noteData])
 							goodNoteHit(coolNote, receptor, strumline);
@@ -477,7 +477,8 @@ class PlayState extends MusicBeatState
 	public function goodNoteHit(daNote:Note, receptor:Receptor, strumline:Strumline)
 	{
 		daNote.wasGoodHit = true;
-		receptor.playAnim('confirm');
+		if (!strumline.autoplay || (daNote.animation.curAnim != null && !daNote.animation.curAnim.name.endsWith('holdend')))
+			receptor.playAnim('confirm', true);
 		for (i in strumline.singingList)
 			characterPlayDirection(i, receptor);
 
