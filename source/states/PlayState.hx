@@ -108,10 +108,10 @@ class PlayState extends MusicBeatState
 		strumlines = new FlxTypedGroup<Strumline>();
 		var separation:Float = FlxG.width / 4;
 		// dad
-		dadStrums = new Strumline((FlxG.width / 2) - separation, FlxG.height / 6, 'default', true, false, [dad], [dad]);
+		dadStrums = new Strumline((FlxG.width / 2) - separation, FlxG.height / 6, 'default', true, false, false, [dad], [dad]);
 		strumlines.add(dadStrums);
 		// bf
-		bfStrums = new Strumline((FlxG.width / 2) + separation, FlxG.height / 6, 'default', false, true, [boyfriend], [boyfriend]);
+		bfStrums = new Strumline((FlxG.width / 2) + separation, FlxG.height / 6, 'default', false, true, false, [boyfriend], [boyfriend]);
 		strumlines.add(bfStrums);
 		add(strumlines);
 		controlledStrumlines = [bfStrums];
@@ -160,7 +160,11 @@ class PlayState extends MusicBeatState
 	{
 		super.update(elapsed);
 
-		// botplay
+		if (FlxG.keys.justPressed.FIVE)
+		{
+			for (strumline in strumlines)
+				strumline.downscroll = !strumline.downscroll;
+		}
 		if (FlxG.keys.justPressed.SIX)
 			bfStrums.autoplay = !bfStrums.autoplay;
 
@@ -210,7 +214,7 @@ class PlayState extends MusicBeatState
 			// control notes
 			for (strumline in strumlines)
 			{
-				var downscrollMultiplier:Int = 1;
+				var downscrollMultiplier:Int = (strumline.downscroll ? -1 : 1);
 
 				for (receptor in strumline.receptors)
 				{
@@ -236,10 +240,27 @@ class PlayState extends MusicBeatState
 							+ (downscrollMultiplier *
 								-((Conductor.songPosition - (strumNote.stepTime * Conductor.stepCrochet)) * (0.45 * strumNote.noteSpeed)));
 
-						var center:Float = receptor.y + (strumNote.receptorData.separation * strumNote.receptorData.size) / 2;
-						var scrollSpeed:Float = downscrollMultiplier * strumNote.noteSpeed;
-						if (strumNote.isSustain && scrollSpeed != 0)
+						// shitty note hack I hate it so much
+						if (strumNote.isSustain)
 						{
+							var scrollSpeed:Float = (downscrollMultiplier * strumNote.noteSpeed);
+							// strumNote.y -= ((strumNote.height / 2) * downscrollMultiplier);
+							// if (strumNote.animation.curAnim.name.endsWith('holdend') && strumNote.prevNote != null)
+							// {
+							// 	strumNote.y -= ((strumNote.prevNote.height / 2) * downscrollMultiplier);
+							// 	if (scrollSpeed < 0)
+							// 	{
+							// 		strumNote.y += (strumNote.height * 4);
+							// 		if (strumNote.endHoldOffset == Math.NEGATIVE_INFINITY) // set the end hold offset yeah I hate that I fix this like this
+							// 			strumNote.endHoldOffset = (strumNote.prevNote.y - (strumNote.y + strumNote.height));
+							// 		else
+							// 			strumNote.y += strumNote.endHoldOffset;
+							// 	}
+							// 	else if (scrollSpeed > 0) // this system is funny like that
+							// 		strumNote.y += ((strumNote.height / 2) * downscrollMultiplier);
+							// }
+
+							var center:Float = receptor.y + (strumNote.receptorData.separation * strumNote.receptorData.size) / 2;
 							if (scrollSpeed < 0)
 							{
 								strumNote.flipY = true;
@@ -252,30 +273,27 @@ class PlayState extends MusicBeatState
 									strumNote.clipRect = swagRect;
 								}
 							}
-							else
+							else if (scrollSpeed > 0
+								&& strumNote.y + strumNote.offset.y * strumNote.scale.y <= center
+								&& (strumline.autoplay || strumNote.wasGoodHit))
 							{
-								if (strumNote.y + strumNote.offset.y * strumNote.scale.y <= center
-									&& (strumline.autoplay || strumNote.wasGoodHit))
-								{
-									var swagRect:FlxRect = new FlxRect(0, 0, strumNote.width / strumNote.scale.x, strumNote.height / strumNote.scale.y);
-									swagRect.y = (center - strumNote.y) / strumNote.scale.y;
-									swagRect.height -= swagRect.y;
-									strumNote.clipRect = swagRect;
-								}
+								var swagRect:FlxRect = new FlxRect(0, 0, strumNote.width / strumNote.scale.x, strumNote.height / strumNote.scale.y);
+								swagRect.y = (center - strumNote.y) / strumNote.scale.y;
+								swagRect.height -= swagRect.y;
+								strumNote.clipRect = swagRect;
 							}
 						}
 
-						if (strumline.autoplay)
+						if (strumline.autoplay && strumNote.canBeHit && !strumNote.wasGoodHit)
 						{
-							if (strumNote.stepTime * Conductor.stepCrochet <= Conductor.songPosition && !strumNote.wasGoodHit)
+							if (strumNote.stepTime * Conductor.stepCrochet <= Conductor.songPosition)
 								goodNoteHit(strumNote, receptor, strumline);
 						}
 					}
 
-					var doKill:Bool = strumNote.y < -strumNote.height;
-					if ((downscrollMultiplier * strumNote.noteSpeed) < 0)
-						doKill = strumNote.y > (FlxG.height + strumNote.height);
-					if (doKill && (strumNote.tooLate || strumNote.wasGoodHit))
+					if (((!strumline.downscroll && (strumNote.y < -strumNote.height))
+						|| (!strumline.downscroll && (strumNote.y > (FlxG.height + strumNote.height))))
+						&& (strumNote.tooLate || strumNote.wasGoodHit))
 						strumline.destroyNote(strumNote);
 				});
 			}

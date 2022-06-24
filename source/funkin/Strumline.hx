@@ -8,6 +8,7 @@ class Strumline extends FlxSpriteGroup
 {
 	public var receptors:FlxTypedSpriteGroup<Receptor>;
 	public var keyAmount:Int = 4;
+	public var downscroll:Bool = false;
 
 	public var characterList:Array<Character> = [];
 	public var singingList:Array<Character> = [];
@@ -21,7 +22,7 @@ class Strumline extends FlxSpriteGroup
 	public var receptorData:ReceptorData;
 
 	public function new(?x_position:Float = 0, ?y_position:Float = 0, ?strumlineType:String = 'default', ?autoplay:Bool = true,
-			?displayJudgement:Bool = false, ?characterList:Array<Character>, ?singingList:Array<Character>)
+			?displayJudgement:Bool = false, ?downscroll:Bool = false, ?characterList:Array<Character>, ?singingList:Array<Character>)
 	{
 		super();
 		this.characterList = characterList;
@@ -29,6 +30,7 @@ class Strumline extends FlxSpriteGroup
 
 		this.autoplay = autoplay;
 		this.displayJudgement = displayJudgement;
+		this.downscroll = downscroll;
 
 		notesGroup = new FlxTypedSpriteGroup<Note>();
 		holdsGroup = new FlxTypedSpriteGroup<Note>();
